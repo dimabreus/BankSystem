@@ -5,6 +5,7 @@ public class Main {
     private final Bank bank = new Bank();
     private final Scanner scanner = new Scanner(System.in);
     private long currentAccountId;
+    private UUID currentSessionId;
 
     public void start() {
         while (true) {
@@ -52,49 +53,37 @@ public class Main {
     }
 
     private void deposit() {
+        if (currentSessionId == null) {
+            System.out.println("Вы не вошли в систему.");
+            return;
+        }
+
         System.out.println("Введите сумму:");
         int amount = readAmount();
 
-        System.out.println("Введите UUID сессии:");
-        String sessionIdString = scanner.nextLine();
-
-        try {
-            UUID sessionId = UUID.fromString(sessionIdString);
-            bank.deposit(sessionId, currentAccountId, amount);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Введен некорректный UUID");
-        }
-
+        bank.deposit(currentSessionId, currentAccountId, amount);
     }
 
     private void withdraw() {
+        if (currentSessionId == null) {
+            System.out.println("Вы не вошли в систему.");
+            return;
+        }
+
         System.out.println("Введите сумму:");
         int amount = readAmount();
 
-        System.out.println("Введите UUID сессии:");
-        String sessionIdString = scanner.nextLine();
-
-        try {
-            UUID sessionId = UUID.fromString(sessionIdString);
-            bank.withdraw(sessionId, currentAccountId, amount);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Введен некорректный UUID");
-        }
-
+        bank.withdraw(currentSessionId, currentAccountId, amount);
     }
 
 
     private void showBalance() {
-        System.out.println("Введите UUID сессии:");
-        String sessionIdString = scanner.nextLine();
-
-        try {
-            UUID sessionId = UUID.fromString(sessionIdString);
-            System.out.println("Ваш баланс: " + bank.findAccount(sessionId, currentAccountId).getBalance());
-        } catch (IllegalArgumentException e) {
-            System.out.println("Введен некорректный UUID");
+        if (currentSessionId == null) {
+            System.out.println("Вы не вошли в систему.");
+            return;
         }
 
+        System.out.println("Ваш баланс: " + bank.findAccount(currentSessionId, currentAccountId).getBalance());
     }
 
     private void login() {
@@ -105,7 +94,12 @@ public class Main {
         String password = scanner.nextLine();
 
         UUID sessionId = bank.login(email, password);
-        System.out.println("ID Сессии: " + sessionId);
+        if (sessionId != null) {
+            currentSessionId = sessionId;
+            System.out.println("Успешный вход. Сессия активна.");
+        } else {
+            System.out.println("Ошибка входа. Проверьте учетные данные.");
+        }
     }
 
     public static void main(String[] args) {
