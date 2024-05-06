@@ -1,10 +1,12 @@
 public class Account {
     private final long id;
     private double balance;
+    private final User owner;
 
-    public Account(long id, double balance) {
+    public Account(long id, double balance, User owner) {
         this.id = id;
         this.balance = balance;
+        this.owner = owner;
     }
 
     public void deposit(double amount) {
@@ -36,5 +38,9 @@ public class Account {
 
     public long getId() {
         return id;
+    }
+
+    public User getOwner() {
+        return owner;
     }
 }
